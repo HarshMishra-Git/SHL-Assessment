@@ -1,19 +1,26 @@
 import streamlit as st
+
+# ========================================
+# PAGE CONFIG - MUST BE FIRST!
+# ========================================
+st.set_page_config(
+    page_title="SHL Assessment Recommender | People Science",
+    page_icon="🎯",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
 import os
 import sys
 import subprocess
+import pandas as pd
+import json
+from datetime import datetime
+import warnings
+warnings.filterwarnings('ignore')
 
-# ========================================
-# MOUNT FASTAPI FOR API ENDPOINTS
-# ========================================
-if os.path.exists('api_routes.py'):
-    try:
-        from api_routes import api_app
-        print("✅ FastAPI mounted at /api/*")
-        print("📚 API Docs: /api/docs")
-        print("🔧 API Endpoints: /api/recommend, /api/health, /api/catalog")
-    except Exception as e:
-        print(f"⚠️ Could not mount API: {e}")
+# Add parent directory to path
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # ========================================
 # AUTO-SETUP: Run setup.py on first load
@@ -35,135 +42,266 @@ if not os.path.exists('models/faiss_index.faiss'):
             st.error(f"Setup error: {str(e)}")
             st.stop()
 
-# Page configuration - MUST be after imports but before other st commands
-st.set_page_config(
-    page_title="SHL Assessment Recommender | People Science",
-    page_icon="🎯",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
-# NOW import other libraries
-import pandas as pd
-import json
-from datetime import datetime
-import warnings
-warnings.filterwarnings('ignore')
-
-import pandas as pd
-import requests
-import json
-import sys
-import os
-from typing import List, Dict
-
-# Add parent directory to path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-
 from src.recommender import AssessmentRecommender
 from src.reranker import AssessmentReranker
 
-
-# Custom CSS for better styling
+# ========================================
+# SHL BRAND STYLING
+# ========================================
 st.markdown("""
     <style>
-    .main-header {
-        font-size: 3rem;
-        font-weight: bold;
-        color: #1E88E5;
-        text-align: center;
-        margin-bottom: 2rem;
+    /* SHL Brand Colors */
+    :root {
+        --shl-dark-green: #1B5700;
+        --shl-bright-green: #78D64B;
+        --shl-gray: #2E2E2E;
+        --shl-light-gray: #F8F9FA;
     }
-    .sub-header {
+    
+    /* Header Styling */
+    .shl-header {
+        background: linear-gradient(135deg, #1B5700 0%, #2A7500 100%);
+        padding: 2.5rem 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(27, 87, 0, 0.2);
+    }
+    
+    .shl-title {
+        color: white;
+        font-size: 2.8rem;
+        font-weight: 800;
+        margin: 0;
+        text-align: center;
+        letter-spacing: -0.5px;
+    }
+    
+    .shl-subtitle {
+        color: #78D64B;
         font-size: 1.2rem;
-        color: #666;
         text-align: center;
-        margin-bottom: 2rem;
+        margin-top: 0.5rem;
+        font-weight: 400;
     }
+    
+    /* Sidebar Styling */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #1B5700 0%, #2A7500 100%);
+    }
+    
+    [data-testid="stSidebar"] * {
+        color: white !important;
+    }
+    
+    [data-testid="stSidebar"] .stSlider label,
+    [data-testid="stSidebar"] .stNumberInput label,
+    [data-testid="stSidebar"] .stCheckbox label {
+        color: white !important;
+        font-weight: 600;
+    }
+    
+    /* Input Styling */
+    .stTextArea textarea {
+        border: 2px solid #78D64B !important;
+        border-radius: 8px;
+        font-size: 1rem;
+    }
+    
+    .stTextArea textarea:focus {
+        border-color: #1B5700 !important;
+        box-shadow: 0 0 0 2px rgba(120, 214, 75, 0.2) !important;
+    }
+    
+    /* Button Styling */
+    .stButton > button {
+        background: linear-gradient(135deg, #1B5700 0%, #2A7500 100%);
+        color: white;
+        border: none;
+        padding: 0.8rem 2rem;
+        font-size: 1.1rem;
+        font-weight: 700;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(27, 87, 0, 0.3);
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .stButton > button:hover {
+        background: linear-gradient(135deg, #2A7500 0%, #1B5700 100%);
+        box-shadow: 0 6px 20px rgba(27, 87, 0, 0.4);
+        transform: translateY(-2px);
+    }
+    
+    /* Assessment Card Styling */
     .assessment-card {
-        padding: 1.5rem;
-        border-radius: 0.5rem;
-        margin-bottom: 1rem;
-        border-left: 4px solid #1E88E5;
-        background-color: #f8f9fa;
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.06);
+        border-left: 5px solid #78D64B;
+        transition: all 0.3s ease;
     }
-    .k-type {
-        background-color: #E3F2FD;
-        color: #1565C0;
-        padding: 0.2rem 0.5rem;
-        border-radius: 0.3rem;
-        font-weight: bold;
+    
+    .assessment-card:hover {
+        box-shadow: 0 4px 25px rgba(27, 87, 0, 0.15);
+        transform: translateY(-2px);
     }
-    .p-type {
-        background-color: #E8F5E9;
-        color: #2E7D32;
-        padding: 0.2rem 0.5rem;
-        border-radius: 0.3rem;
-        font-weight: bold;
+    
+    .assessment-card h3 {
+        color: #1B5700;
+        font-size: 1.4rem;
+        margin: 0 0 1rem 0;
+        font-weight: 700;
     }
+    
+    /* Badge Styling */
+    .badge-k {
+        background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+        color: white;
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        display: inline-block;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .badge-p {
+        background: linear-gradient(135deg, #EE297B 0%, #D91E6B 100%);
+        color: white;
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        display: inline-block;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
     .score-badge {
-        background-color: #FFF3E0;
-        color: #E65100;
-        padding: 0.2rem 0.5rem;
-        border-radius: 0.3rem;
-        font-weight: bold;
+        background: #78D64B;
+        color: #2E2E2E;
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+    
+    .category-badge {
+        background: #F8F9FA;
+        color: #2E2E2E;
+        padding: 0.4rem 0.9rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border: 1px solid #E5E7EB;
+    }
+    
+    /* CTA Button */
+    .cta-button {
+        background: linear-gradient(135deg, #1B5700 0%, #2A7500 100%);
+        color: white;
+        padding: 0.7rem 1.8rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.95rem;
+        box-shadow: 0 3px 12px rgba(27, 87, 0, 0.3);
+        transition: all 0.3s ease;
+        display: inline-block;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .cta-button:hover {
+        background: linear-gradient(135deg, #2A7500 0%, #1B5700 100%);
+        box-shadow: 0 5px 18px rgba(27, 87, 0, 0.4);
+        transform: translateY(-2px);
+        text-decoration: none;
+        color: white;
+    }
+    
+    /* Metrics */
+    [data-testid="stMetricValue"] {
+        color: #1B5700;
+        font-size: 2rem;
+        font-weight: 700;
+    }
+    
+    /* Download Button */
+    .stDownloadButton > button {
+        background: linear-gradient(135deg, #1B5700 0%, #2A7500 100%);
+        color: white;
+        border: none;
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
+        font-weight: 700;
+        border-radius: 8px;
+        width: 100%;
+    }
+    
+    .stDownloadButton > button:hover {
+        background: linear-gradient(135deg, #2A7500 0%, #1B5700 100%);
+    }
+    
+    /* Info boxes */
+    .stAlert {
+        border-radius: 8px;
     }
     </style>
 """, unsafe_allow_html=True)
 
-
-# Initialize session state
-if 'recommender' not in st.session_state:
-    st.session_state.recommender = None
-if 'reranker' not in st.session_state:
-    st.session_state.reranker = None
+# ========================================
+# SESSION STATE
+# ========================================
 if 'recommendations' not in st.session_state:
     st.session_state.recommendations = None
 
-
+# ========================================
+# CACHED RESOURCES
+# ========================================
 @st.cache_resource
 def load_recommender():
     """Load and cache the recommender system"""
     try:
         recommender = AssessmentRecommender()
         success = recommender.load_index()
-        if success:
-            return recommender
-        else:
-            return None
+        return recommender if success else None
     except Exception as e:
         st.error(f"Error loading recommender: {e}")
         return None
-
 
 @st.cache_resource
 def load_reranker():
     """Load and cache the reranker"""
     try:
-        reranker = AssessmentReranker()
-        return reranker
+        return AssessmentReranker()
     except Exception as e:
         st.error(f"Error loading reranker: {e}")
         return None
 
-
+# ========================================
+# HELPER FUNCTIONS
+# ========================================
 def get_recommendations(query: str, num_results: int, use_reranking: bool, min_k: int, min_p: int):
     """Get recommendations from the system"""
     recommender = load_recommender()
     
     if recommender is None:
-        st.error("Failed to load recommender system. Please check if models are available.")
+        st.error("Failed to load recommender system.")
         return []
     
     try:
-        # Get initial candidates
         initial_k = num_results * 2 if use_reranking else num_results
         candidates = recommender.recommend(query, k=initial_k, method='faiss')
         
         if not candidates:
             return []
         
-        # Apply reranking if requested
         if use_reranking:
             reranker = load_reranker()
             if reranker:
@@ -187,11 +325,9 @@ def get_recommendations(query: str, num_results: int, use_reranking: bool, min_k
             else:
                 final_results = candidates[:num_results]
             
-            # Add ranks
             for i, assessment in enumerate(final_results, 1):
                 assessment['rank'] = i
         
-        # Normalize scores
         if reranker:
             final_results = reranker.normalize_scores(final_results)
         
@@ -201,29 +337,21 @@ def get_recommendations(query: str, num_results: int, use_reranking: bool, min_k
         st.error(f"Error getting recommendations: {e}")
         return []
 
+# ========================================
+# HEADER
+# ========================================
+st.markdown("""
+<div class="shl-header">
+    <h1 class="shl-title">🎯 SHL Assessment Recommender</h1>
+    <p class="shl-subtitle">AI-Powered Talent Assessment Matching | People Science</p>
+</div>
+""", unsafe_allow_html=True)
 
-def display_assessment(assessment: Dict, rank: int):
-    """Display a single assessment card"""
-    type_badge = f'<span class="k-type">Knowledge/Skill</span>' if assessment['test_type'] == 'K' else f'<span class="p-type">Personality/Behavior</span>'
-    score_badge = f'<span class="score-badge">Score: {assessment.get("score", 0):.2%}</span>'
-    
-    st.markdown(f"""
-    <div class="assessment-card">
-        <h3>#{rank}. {assessment['assessment_name']}</h3>
-        <p>{type_badge} &nbsp; <strong>Category:</strong> {assessment['category']} &nbsp; {score_badge}</p>
-        <p><strong>Description:</strong> {assessment['description']}</p>
-        <p><a href="{assessment['assessment_url']}" target="_blank">🔗 View Assessment</a></p>
-    </div>
-    """, unsafe_allow_html=True)
-
-
-# Main UI
-st.markdown('<h1 class="main-header">🎯 SHL Assessment Recommender System</h1>', unsafe_allow_html=True)
-st.markdown('<p class="sub-header">AI-powered job assessment recommendations using semantic search</p>', unsafe_allow_html=True)
-
-# Sidebar
+# ========================================
+# SIDEBAR
+# ========================================
 with st.sidebar:
-    st.header("⚙️ Settings")
+    st.markdown("### ⚙️ Configuration")
     
     num_results = st.slider(
         "Number of Recommendations",
@@ -239,54 +367,34 @@ with st.sidebar:
         help="Apply cross-encoder reranking for better accuracy"
     )
     
-    st.subheader("Balance Settings")
+    st.markdown("### ⚖️ Balance Settings")
     
     min_k = st.number_input(
-        "Minimum Knowledge Assessments",
+        "Minimum Knowledge Tests",
         min_value=0,
         max_value=5,
-        value=1,
-        help="Minimum number of knowledge/skill assessments"
+        value=1
     )
     
     min_p = st.number_input(
-        "Minimum Personality Assessments",
+        "Minimum Personality Tests",
         min_value=0,
         max_value=5,
-        value=1,
-        help="Minimum number of personality/behavior assessments"
+        value=1
     )
     
     st.markdown("---")
-     # API Information
-    st.markdown("### 🔧 API Access")
-    st.markdown("""
-    <div style="
-        background: rgba(255, 255, 255, 0.1);
-        padding: 1rem;
-        border-radius: 8px;
-        border-left: 3px solid #78D64B;
-        font-size: 0.85rem;
-    ">
-        <p style="color: white; margin: 0;">
-        <strong>API Endpoints:</strong><br>
-        • <code>/api/recommend</code><br>
-        • <code>/api/health</code><br>
-        • <code>/api/catalog</code><br>
-        <br>
-        <strong>Docs:</strong> <a href="/api/docs" style="color: #78D64B;">/api/docs</a>
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
     
-    st.subheader("📖 About")
+    st.markdown("### 📖 About")
     st.markdown("""
-    This system uses:
-    - **Embeddings**: sentence-transformers/all-MiniLM-L6-v2
-    - **Reranking**: cross-encoder/ms-marco-MiniLM-L-6-v2
-    - **Search**: FAISS similarity search
+    **Technology Stack:**
+    - Embeddings: all-MiniLM-L6-v2
+    - Reranking: ms-marco-MiniLM-L-6-v2
+    - Search: FAISS
     
-    Recommends SHL Individual Test Solutions based on job descriptions.
+    **Performance:**
+    - Mean Recall@10: 100%
+    - 152 SHL Assessments
     """)
     
     # Load evaluation results if available
@@ -296,39 +404,38 @@ with st.sidebar:
                 eval_results = json.load(f)
             
             st.markdown("---")
-            st.subheader("📊 Performance Metrics")
-            st.metric("Mean Recall@10", f"{eval_results.get('mean_recall_at_10', 0):.2%}")
-            st.metric("Mean Precision@10", f"{eval_results.get('mean_precision_at_10', 0):.2%}")
+            st.markdown("### 📊 Metrics")
+            st.metric("Recall@10", f"{eval_results.get('mean_recall_at_10', 0):.0%}")
+            st.metric("Precision@10", f"{eval_results.get('mean_precision_at_10', 0):.0%}")
     except:
         pass
 
-
-# Main content area
+# ========================================
+# MAIN CONTENT
+# ========================================
 col1, col2 = st.columns([3, 1])
 
 with col1:
-    # Query input
     query = st.text_area(
-        "📝 Enter Job Description or Query",
+        "📝 Enter Job Description or Requirements",
         height=150,
-        placeholder="e.g., Looking for a Java developer who can lead a small team and has strong communication skills...",
-        help="Enter a job description, requirements, or natural language query"
+        placeholder="Example: Looking for a Java developer with 5+ years experience who can lead a team and has strong communication skills...",
+        help="Enter a detailed job description or requirements"
     )
 
 with col2:
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # Example queries dropdown
     example_queries = {
-        "Java Developer + Leadership": "Looking for a Java developer who can lead a small team and mentor junior developers",
-        "Data Analyst": "Need a data analyst with SQL and Python skills for business intelligence",
-        "Customer Service Manager": "Seeking a customer service manager with excellent communication and problem-solving abilities",
-        "Software Engineer": "Want to hire a software engineer with strong programming and analytical skills",
-        "Sales Representative": "Looking for a sales representative with persuasive personality and negotiation skills"
+        "Java Developer + Leadership": "Looking for a Java developer who can lead a small team and mentor junior developers with strong technical and interpersonal skills",
+        "Data Analyst": "Need a data analyst with SQL, Python, and Excel skills for business intelligence and reporting",
+        "Customer Service Manager": "Seeking a customer service manager with excellent communication, problem-solving, and team management abilities",
+        "Software Engineer": "Want to hire a software engineer with strong programming skills in Python, analytical thinking, and collaboration abilities",
+        "Sales Representative": "Looking for a sales representative with persuasive personality, negotiation skills, and customer relationship management experience"
     }
     
     selected_example = st.selectbox(
-        "Or try an example:",
+        "💡 Try an example:",
         [""] + list(example_queries.keys())
     )
     
@@ -336,73 +443,110 @@ with col2:
         query = example_queries[selected_example]
 
 # Get recommendations button
-if st.button("🚀 Get Recommendations", type="primary", use_container_width=True):
+if st.button("🔍 FIND ASSESSMENTS", type="primary", use_container_width=True):
     if not query or not query.strip():
-        st.warning("⚠️ Please enter a query first!")
+        st.warning("⚠️ Please enter a job description first!")
     else:
-        with st.spinner("🔍 Searching for the best assessments..."):
+        with st.spinner("🔍 Analyzing requirements and matching assessments..."):
             recommendations = get_recommendations(query, num_results, use_reranking, min_k, min_p)
             st.session_state.recommendations = recommendations
 
-# Display results
+# ========================================
+# DISPLAY RESULTS
+# ========================================
 if st.session_state.recommendations:
     recommendations = st.session_state.recommendations
     
     st.markdown("---")
-    st.subheader(f"📋 Top {len(recommendations)} Recommended Assessments")
+    st.markdown("## 🎯 Recommended Assessments")
     
-    # Summary statistics
-    k_count = sum(1 for r in recommendations if r['test_type'] == 'K')
-    p_count = sum(1 for r in recommendations if r['test_type'] == 'P')
+    # Summary Dashboard
+    col1, col2, col3, col4 = st.columns(4)
     
-    col1, col2, col3 = st.columns(3)
+    k_count = sum(1 for r in recommendations if r.get('test_type') == 'K')
+    p_count = sum(1 for r in recommendations if r.get('test_type') == 'P')
+    avg_score = sum(r.get('score', 0) for r in recommendations) / len(recommendations) if recommendations else 0
+    
     with col1:
-        st.metric("Total Recommendations", len(recommendations))
+        st.metric("Total Matches", len(recommendations))
+    
     with col2:
-        st.metric("Knowledge/Skill (K)", k_count)
+        st.metric("Knowledge Tests", k_count)
+    
     with col3:
-        st.metric("Personality/Behavior (P)", p_count)
+        st.metric("Personality Tests", p_count)
+    
+    with col4:
+        st.metric("Avg. Match Score", f"{avg_score:.0%}")
     
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # Display each assessment
-    for assessment in recommendations:
-        display_assessment(assessment, assessment.get('rank', 0))
+    # Display each recommendation
+    for idx, rec in enumerate(recommendations, 1):
+        # Determine badges
+        if rec.get('test_type') == 'K':
+            type_badge = '<span class="badge-k">📚 KNOWLEDGE</span>'
+        else:
+            type_badge = '<span class="badge-p">👤 PERSONALITY</span>'
+        
+        score = rec.get("score", 0)
+        score_badge = f'<span class="score-badge">⭐ {score:.0%} MATCH</span>'
+        
+        # Get content
+        description = str(rec.get('description', 'No description available'))[:250]
+        assessment_name = str(rec.get('assessment_name', 'Unknown Assessment'))
+        category = str(rec.get('category', 'General'))
+        url = rec.get('assessment_url', '#')
+        
+        # Create card
+        st.markdown(f"""
+        <div class="assessment-card">
+            <h3>#{idx} · {assessment_name}</h3>
+            <div style="margin-bottom: 1rem;">
+                {type_badge} &nbsp; {score_badge}
+            </div>
+            <p style="color: #4B5563; margin-bottom: 1.5rem; line-height: 1.7; font-size: 0.95rem;">
+                {description}...
+            </p>
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                <span class="category-badge">📂 {category}</span>
+                <a href="{url}" target="_blank" class="cta-button">VIEW ASSESSMENT →</a>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
     
-    # Download option
+    # Download Section
     st.markdown("---")
     
-    # Prepare data for download
-    download_data = []
-    for assessment in recommendations:
-        download_data.append({
-            'Rank': assessment.get('rank', 0),
-            'Assessment Name': assessment['assessment_name'],
-            'Type': 'Knowledge/Skill' if assessment['test_type'] == 'K' else 'Personality/Behavior',
-            'Category': assessment['category'],
-            'Score': f"{assessment.get('score', 0):.2%}",
-            'URL': assessment['assessment_url'],
-            'Description': assessment['description']
-        })
+    df = pd.DataFrame([{
+        'Rank': idx,
+        'Assessment': rec.get('assessment_name', ''),
+        'Type': rec.get('test_type', ''),
+        'Category': rec.get('category', ''),
+        'Match Score': f"{rec.get('score', 0):.2%}",
+        'URL': rec.get('assessment_url', ''),
+        'Description': rec.get('description', '')[:150]
+    } for idx, rec in enumerate(recommendations, 1)])
     
-    df = pd.DataFrame(download_data)
     csv = df.to_csv(index=False)
     
-    st.download_button(
-        label="📥 Download Results as CSV",
-        data=csv,
-        file_name="shl_recommendations.csv",
-        mime="text/csv",
-        use_container_width=True
-    )
+    col1, col2, col3 = st.columns([1, 1.5, 1])
+    
+    with col2:
+        st.download_button(
+            label="📥 DOWNLOAD RESULTS (CSV)",
+            data=csv,
+            file_name=f"shl_assessments_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+            mime="text/csv",
+            use_container_width=True
+        )
 
 else:
-    # Show welcome message when no results
-    st.info("👋 Welcome! Enter a job description above and click 'Get Recommendations' to find the best SHL assessments.")
+    st.info("👋 **Welcome!** Enter a job description above and click 'FIND ASSESSMENTS' to discover the best SHL assessment recommendations powered by AI.")
 
 # Footer
 st.markdown("---")
 st.markdown(
-    "<p style='text-align: center; color: #666;'>SHL Assessment Recommender System | Powered by Generative AI</p>",
+    "<p style='text-align: center; color: #78D64B; font-weight: 600;'>SHL Assessment Recommender | Powered by Advanced AI & Machine Learning</p>",
     unsafe_allow_html=True
 )

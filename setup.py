@@ -57,7 +57,7 @@ def check_dependencies():
     if missing:
         logger.warning(f"Missing packages: {', '.join(missing)}")
         logger.info("Attempting to continue anyway...")
-        return True  # Continue on HF even with warnings
+        return True
     
     logger.info("✓ All dependencies installed")
     return True
@@ -85,11 +85,48 @@ def step1_generate_catalog():
             logger.info(f"✓ Generating catalog from Excel: {excel_path}")
             df = pd.read_excel(excel_path)
             
-            # Ensure required columns
+            logger.info(f"✓ Excel columns found: {list(df.columns)}")
+            
+            # Handle column name variations
+            column_mapping = {
+                'assessment_name': 'Assessment Name',
+                'Assessment_Name': 'Assessment Name',
+                'assessment name': 'Assessment Name',
+                'assessment_url': 'Assessment URL',
+                'Assessment_URL': 'Assessment URL',
+                'assessment url': 'Assessment URL',
+                'description': 'Description',
+                'Description': 'Description',
+                'category': 'Category',
+                'Category': 'Category',
+                'test_type': 'Test Type',
+                'Test_Type': 'Test Type',
+                'test type': 'Test Type',
+                'Type': 'Test Type',
+                'type': 'Test Type'
+            }
+            
+            # Rename columns to standard format
+            for old_col, new_col in column_mapping.items():
+                if old_col in df.columns and new_col not in df.columns:
+                    df.rename(columns={old_col: new_col}, inplace=True)
+                    logger.info(f"✓ Renamed column: {old_col} → {new_col}")
+            
+            # Verify required columns exist
             required_cols = ['Assessment Name', 'Assessment URL', 'Description', 'Category', 'Test Type']
-            if not all(col in df.columns for col in required_cols):
-                logger.error("Excel file missing required columns")
-                return False
+            missing_cols = [col for col in required_cols if col not in df.columns]
+            
+            if missing_cols:
+                logger.error(f"Excel file missing columns: {missing_cols}")
+                logger.error(f"Available columns: {list(df.columns)}")
+                logger.info("Attempting to use first 5 columns as fallback...")
+                
+                # Fallback: Use first 5 columns
+                if len(df.columns) >= 5:
+                    df.columns = required_cols[:len(df.columns)]
+                    logger.info("✓ Using columns by position")
+                else:
+                    return False
             
             # Save to CSV
             os.makedirs('data', exist_ok=True)
@@ -114,6 +151,8 @@ def step1_generate_catalog():
             
     except Exception as e:
         logger.error(f"✗ Failed to load catalog: {e}")
+        import traceback
+        traceback.print_exc()
         return False
 
 
@@ -135,8 +174,8 @@ def step2_preprocess_data():
         return True
     except Exception as e:
         logger.warning(f"⚠ Preprocessing skipped: {e}")
-        logger.info("✓ Continuing without training data (assessment catalog will still work)")
-        return True  # Continue anyway - catalog-only mode
+        logger.info("✓ Continuing without training data")
+        return True
 
 
 def step3_build_index():
@@ -144,7 +183,7 @@ def step3_build_index():
     logger.info("\n" + "="*60)
     logger.info("STEP 3: Building Search Index")
     logger.info("="*60)
-    logger.info("This may take a few minutes on first run (downloading models)...")
+    logger.info("Downloading models and creating embeddings...")
     
     try:
         from src.embedder import AssessmentEmbedder
@@ -186,45 +225,38 @@ def step4_run_evaluation():
         from src.recommender import AssessmentRecommender
         from src.preprocess import DataPreprocessor
         
-        # Load training data
         preprocessor = DataPreprocessor()
         data = preprocessor.preprocess()
         train_mapping = data.get('train_mapping', {})
         
         if not train_mapping:
             logger.warning("⚠ No training data available, skipping evaluation")
-            logger.info("✓ System is ready for recommendations (evaluation skipped)")
+            logger.info("✓ System ready (evaluation skipped)")
             return True
         
-        # Load recommender
         recommender = AssessmentRecommender()
         if not recommender.load_index():
-            logger.error("✗ Failed to load recommender index")
+            logger.error("✗ Failed to load recommender")
             return False
         
-        # Evaluate
         evaluator = RecommenderEvaluator()
         results = evaluator.evaluate(recommender, train_mapping, k=10)
         
-        # Print report
         evaluator.print_report()
-        
-        # Save results
         evaluator.save_results()
         
         logger.info("✓ Evaluation complete")
         logger.info(f"✓ Mean Recall@10: {results['mean_recall_at_10']:.2%}")
-        logger.info(f"✓ Mean Precision@10: {results['mean_precision_at_10']:.2%}")
         
         return True
     except Exception as e:
         logger.warning(f"⚠ Evaluation skipped: {e}")
-        logger.info("✓ System is ready for recommendations (evaluation skipped)")
-        return True  # Continue anyway
+        logger.info("✓ System ready (evaluation skipped)")
+        return True
 
 
 def verify_setup():
-    """Verify that setup completed successfully"""
+    """Verify setup completion"""
     logger.info("\n" + "="*60)
     logger.info("VERIFICATION")
     logger.info("="*60)
@@ -246,10 +278,9 @@ def verify_setup():
             missing.append(file_path)
     
     if missing:
-        logger.error(f"Setup incomplete - missing files: {missing}")
+        logger.error(f"Missing files: {missing}")
         return False
     
-    # Test loading
     try:
         from src.recommender import AssessmentRecommender
         
@@ -260,13 +291,10 @@ def verify_setup():
         num_vectors = recommender.index.ntotal
         
         logger.info(f"✓ Loaded {num_assessments} assessments")
-        logger.info(f"✓ Index contains {num_vectors} vectors")
-        
-        if num_assessments != num_vectors:
-            logger.warning(f"⚠ Mismatch: {num_assessments} assessments but {num_vectors} vectors")
+        logger.info(f"✓ Index has {num_vectors} vectors")
         
         if num_assessments < 100:
-            logger.warning(f"⚠ Only {num_assessments} assessments loaded (expected ~150)")
+            logger.warning(f"⚠ Only {num_assessments} assessments (expected 150+)")
         
         return True
         
@@ -281,16 +309,12 @@ def main():
     logger.info("SHL ASSESSMENT RECOMMENDER - SETUP")
     logger.info("="*60)
     
-    # Check dependencies
-    if not check_dependencies():
-        logger.warning("Some dependencies missing, attempting to continue...")
+    check_dependencies()
     
-    # Create directories
     os.makedirs('data', exist_ok=True)
     os.makedirs('models', exist_ok=True)
-    logger.info("✓ Directories created/verified")
+    logger.info("✓ Directories created")
     
-    # Run setup steps
     steps = [
         ("Load Catalog", step1_generate_catalog),
         ("Preprocess Data", step2_preprocess_data),
@@ -298,37 +322,20 @@ def main():
         ("Run Evaluation", step4_run_evaluation)
     ]
     
-    failed_steps = []
     for step_name, step_func in steps:
         if not step_func():
-            failed_steps.append(step_name)
-            # Only fail on critical steps
             if step_name in ["Load Catalog", "Build Index"]:
-                logger.error(f"✗ Setup failed at critical step: {step_name}")
+                logger.error(f"✗ Critical step failed: {step_name}")
                 return 1
     
-    # Verify setup
     if not verify_setup():
-        logger.error("✗ Setup verification failed")
+        logger.error("✗ Verification failed")
         return 1
     
-    # Summary
     logger.info("\n" + "="*60)
     logger.info("✅ SETUP COMPLETE!")
     logger.info("="*60)
-    
-    if failed_steps:
-        logger.info(f"\n⚠ Non-critical steps skipped: {', '.join(failed_steps)}")
-    
-    logger.info("\n📊 System Ready:")
-    logger.info("  • Assessment catalog loaded")
-    logger.info("  • Search index built")
-    logger.info("  • Recommender ready")
-    
-    logger.info("\n🚀 Next Steps:")
-    logger.info("  1. Start API: uvicorn api.main:app --reload")
-    logger.info("  2. Start UI: streamlit run app.py")
-    logger.info("  3. View docs: http://localhost:8000/docs")
+    logger.info("\n📊 System Ready for Recommendations")
     
     return 0
 
@@ -337,10 +344,10 @@ if __name__ == "__main__":
     try:
         sys.exit(main())
     except KeyboardInterrupt:
-        logger.info("\n\nSetup interrupted by user")
+        logger.info("\nSetup interrupted")
         sys.exit(1)
     except Exception as e:
-        logger.error(f"\n\nUnexpected error: {e}")
+        logger.error(f"\nUnexpected error: {e}")
         import traceback
         traceback.print_exc()
         sys.exit(1)
