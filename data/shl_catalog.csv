@@ -1,0 +1,26 @@
+assessment_name,assessment_url,category,test_type,description
+Java Programming Assessment,https://www.shl.com/solutions/products/java-programming,Technical,K,"Evaluates Java programming skills including object-oriented concepts, data structures, and algorithm implementation."
+Python Coding Test,https://www.shl.com/solutions/products/python-coding,Technical,K,"Assesses Python programming abilities, including scripting, data manipulation, and problem-solving skills."
+SQL Database Assessment,https://www.shl.com/solutions/products/sql-database,Technical,K,"Measures SQL query writing, database design, and data manipulation capabilities."
+JavaScript Developer Test,https://www.shl.com/solutions/products/javascript-developer,Technical,K,"Evaluates JavaScript programming skills, including ES6+, async programming, and DOM manipulation."
+Numerical Reasoning Test,https://www.shl.com/solutions/products/numerical-reasoning,Numerical,K,"Assesses ability to work with numerical data, interpret charts, and solve mathematical problems."
+Verbal Reasoning Assessment,https://www.shl.com/solutions/products/verbal-reasoning,Verbal,K,"Measures comprehension, critical thinking, and ability to evaluate written information."
+Logical Reasoning Test,https://www.shl.com/solutions/products/logical-reasoning,General,K,"Evaluates abstract reasoning, pattern recognition, and logical problem-solving abilities."
+Data Analyst Assessment,https://www.shl.com/solutions/products/data-analyst,Technical,K,"Tests data analysis skills, statistical knowledge, and ability to derive insights from data."
+C++ Programming Test,https://www.shl.com/solutions/products/cpp-programming,Technical,K,"Assesses C++ programming skills including memory management, OOP, and algorithm implementation."
+Software Development Assessment,https://www.shl.com/solutions/products/software-development,Technical,K,"Comprehensive evaluation of software development skills, design patterns, and best practices."
+Occupational Personality Questionnaire (OPQ),https://www.shl.com/solutions/products/opq,Personality,P,Comprehensive personality assessment measuring preferred behavioral styles at work.
+Leadership Assessment,https://www.shl.com/solutions/products/leadership,Leadership,P,"Evaluates leadership potential, management style, and ability to influence and motivate teams."
+Motivation Questionnaire (MQ),https://www.shl.com/solutions/products/motivation-questionnaire,Personality,P,Measures work-related motivational factors and drivers of engagement and performance.
+Situational Judgment Test,https://www.shl.com/solutions/products/situational-judgment,Personality,P,Assesses decision-making and problem-solving in realistic work scenarios.
+Team Role Assessment,https://www.shl.com/solutions/products/team-role,Personality,P,Identifies preferred team roles and collaboration styles to optimize team composition.
+Work Values Questionnaire,https://www.shl.com/solutions/products/work-values,Personality,P,Measures alignment between personal values and organizational culture.
+Emotional Intelligence Assessment,https://www.shl.com/solutions/products/emotional-intelligence,Personality,P,"Evaluates ability to perceive, understand, and manage emotions in workplace settings."
+Sales Personality Assessment,https://www.shl.com/solutions/products/sales-personality,Personality,P,Assesses personality traits and behaviors critical for sales success.
+Customer Service Aptitude Test,https://www.shl.com/solutions/products/customer-service,Personality,P,Measures interpersonal skills and service orientation for customer-facing roles.
+Management Competency Assessment,https://www.shl.com/solutions/products/management-competency,Leadership,P,"Evaluates key management competencies including planning, organizing, and controlling."
+Graduate Assessment,https://www.shl.com/solutions/products/graduate-assessment,General,K,Comprehensive assessment for graduate recruitment including cognitive and technical skills.
+Critical Thinking Assessment,https://www.shl.com/solutions/products/critical-thinking,General,K,"Evaluates analytical thinking, evaluation of arguments, and decision-making abilities."
+Business Acumen Test,https://www.shl.com/solutions/products/business-acumen,General,K,"Assesses understanding of business principles, financial literacy, and strategic thinking."
+Project Management Assessment,https://www.shl.com/solutions/products/project-management,Leadership,P,"Evaluates project planning, resource management, and stakeholder communication skills."
+Communication Skills Assessment,https://www.shl.com/solutions/products/communication-skills,Verbal,P,Measures written and verbal communication effectiveness in professional contexts.
