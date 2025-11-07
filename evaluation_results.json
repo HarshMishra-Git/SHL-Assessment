@@ -1,0 +1,15 @@
+{
+  "mean_recall_at_10": 1.0,
+  "mean_precision_at_10": 1.0,
+  "mean_average_precision": 0.68,
+  "num_queries": 10,
+  "k": 10,
+  "evaluation_method": "query_relevance",
+  "semantic_matching": true,
+  "recall_distribution": {
+    "min": 1.0,
+    "max": 1.0,
+    "median": 1.0,
+    "std": 0.0
+  }
+}

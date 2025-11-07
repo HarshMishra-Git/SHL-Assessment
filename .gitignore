@@ -1,0 +1,5 @@
+models/  
+*.npy  
+*.faiss  
+*.pkl  
+__pycache__/  

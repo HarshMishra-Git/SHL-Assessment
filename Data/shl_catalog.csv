@@ -1,0 +1,153 @@
+assessment_name,assessment_url,category,test_type,description
+Latest browser options,https://browsehappy.com/,General,K,Latest browser options
+Careers,https://www.shl.com/careers/,General,P,Careers
+Our Culture,https://www.shl.com/careers/our-culture/,General,P,Our Culture
+Our Teams,https://www.shl.com/careers/our-teams/,General,P,Our Teams
+Our People,https://www.shl.com/careers/our-people/,General,P,Our People
+Join SHL,https://www.shl.com/careers/join-shl/,General,P,Join SHL
+Latest Jobs,https://www.shl.com/careers/jobs/,General,K,Latest Jobs
+Contact,https://www.shl.com/about/company/contact/,General,P,Contact
+Practice Tests,https://www.shl.com/shldirect/en/practice-tests/,General,K,Practice Tests
+Support,https://support.shl.com/,General,P,Support
+Candidate Support,https://support.shl.com/categories.html?hl=en&c=10_91_12_,General,P,Candidate Support
+Client Support,https://support.shl.com/categories.html?hl=en&c=10_91_13_,General,P,Client Support
+Contact Us,https://support.shl.com/KB_ContactUs?cg=candidate&l=en_US&p=&pt=&lg=&cg=,General,P,Contact Us
+Practice Site & Advice,https://www.shl.com/shldirect/en/practice-tests/,General,P,Practice Site & Advice
+Browser Check,https://support.shl.com/apex/BrowserCheck,General,P,Browser Check
+Login,https://www.shl.com/login/,General,P,Login
+Buy Online,https://www.shl.com/shl-online/,General,P,Buy Online
+English (Global),https://www.shl.com/,General,P,English (Global)
+English (India),https://www.shl.com/en-in/,General,P,English (India)
+English (Middle East & North Africa),https://www.shl.com/en-mena/,General,P,English (Middle East & North Africa)
+English (South Africa),https://www.shl.com/en-za/,General,P,English (South Africa)
+简体中文 (Chinese),https://www.shlglobal.cn/,General,P,简体中文 (Chinese)
+日本語 (Japanese),https://www.shl.co.jp/,General,P,日本語 (Japanese)
+Global Offices,https://www.shl.com/about/company/global-offices/,General,P,Global Offices
+Talent Acquisition,https://www.shl.com/solutions/talent-acquisition/,General,P,Talent Acquisition
+Graduate & Early Careers,https://www.shl.com/solutions/talent-acquisition/graduate/,General,P,Graduate & Early Careers
+Manager Hiring,https://www.shl.com/solutions/talent-acquisition/manager/,General,P,Manager Hiring
+Interviewing,https://www.shl.com/solutions/talent-acquisition/interviewing/,General,P,Interviewing
+Technology Hiring,https://www.shl.com/solutions/talent-acquisition/tech-hiring/,General,P,Technology Hiring
+Professional Hiring,https://www.shl.com/solutions/talent-acquisition/professional/,General,P,Professional Hiring
+Volume Hiring,https://www.shl.com/solutions/talent-acquisition/volume-hiring/,General,P,Volume Hiring
+BPO Hiring,https://www.shl.com/solutions/talent-acquisition/volume-hiring/bpo-hiring/,General,P,BPO Hiring
+Contact Center Hiring,https://www.shl.com/solutions/talent-acquisition/volume-hiring/contact-center-hiring/,General,P,Contact Center Hiring
+Retail Hiring,https://www.shl.com/solutions/talent-acquisition/volume-hiring/retail-hiring/,General,P,Retail Hiring
+Talent Management,https://www.shl.com/solutions/talent-management/,Leadership,P,Talent Management
+Succession Planning,https://www.shl.com/solutions/talent-management/succession-planning/,General,P,Succession Planning
+Enterprise Leader Development,https://www.shl.com/solutions/talent-management/enterprise-leader-development/,General,P,Enterprise Leader Development
+High Potential Identification,https://www.shl.com/solutions/talent-management/hipo/,General,P,High Potential Identification
+Manager Development,https://www.shl.com/solutions/talent-management/manager-development/,General,P,Manager Development
+Skills Development,https://www.shl.com/solutions/talent-management/skills-development/,General,K,Skills Development
+Sales Transformation,https://www.shl.com/solutions/talent-management/sales-transformation/,General,P,Sales Transformation
+Talent Mobility,https://www.shl.com/solutions/talent-management/talent-mobility/,General,P,Talent Mobility
+Talent Acquisition Demos,https://www.shl.com/resources/by-type/demos/#talent-acquisition-demos,General,P,Talent Acquisition Demos
+Talent Management Demos,https://www.shl.com/resources/by-type/demos/#talent-management-demos,Leadership,P,Talent Management Demos
+Launch Calculator,https://www.shl.com/resources/by-type/guides-and-ebooks/smart-interview-professional-value-calculator/,General,P,Launch Calculator
+Products,https://www.shl.com/products/,General,P,Products
+Occupational Personality Questionnaire (OPQ),https://www.shl.com/products/assessments/personality-assessment/shl-occupational-personality-questionnaire-opq/,Personality,P,Occupational Personality Questionnaire (OPQ)
+Job-Focused Assessments (JFA),https://www.shl.com/products/assessments/job-focused-assessments/,General,P,Job-Focused Assessments (JFA)
+Motivational Questionnaire (MQ),https://www.shl.com/products/assessments/personality-assessment/shl-motivation-questionnaire-mq/,General,P,Motivational Questionnaire (MQ)
+Situational Judgment Tests (SJT),https://www.shl.com/products/assessments/behavioral-assessments/situation-judgement-tests-sjt/,General,P,Situational Judgment Tests (SJT)
+SHL Verify,https://www.shl.com/products/assessments/cognitive-assessments/,General,P,SHL Verify
+SHL 360,https://www.shl.com/products/360/,General,P,SHL 360
+Assessments,https://www.shl.com/products/assessments/,General,P,Assessments
+Behavioral Assessments,https://www.shl.com/products/assessments/behavioral-assessments/,Personality,P,Behavioral Assessments
+Cognitive Assessments,https://www.shl.com/products/assessments/cognitive-assessments/,General,K,Cognitive Assessments
+Personality Assessments,https://www.shl.com/products/assessments/personality-assessment/,Personality,P,Personality Assessments
+Video Interviews,https://www.shl.com/products/video-interviews/,General,P,Video Interviews
+Skills & Simulations,https://www.shl.com/products/assessments/skills-and-simulations/,General,K,Skills & Simulations
+Call Center Simulations,https://www.shl.com/products/assessments/skills-and-simulations/call-center-simulations/,General,P,Call Center Simulations
+Business Skills,https://www.shl.com/products/assessments/skills-and-simulations/business-skills/,General,K,Business Skills
+Coding Simulations,https://www.shl.com/products/assessments/skills-and-simulations/coding-simulations/,Technical,K,Coding Simulations
+Technical Skills,https://www.shl.com/products/assessments/skills-and-simulations/technical-skills/,General,K,Technical Skills
+Language Evaluation,https://www.shl.com/products/assessments/skills-and-simulations/language-evaluation/,Verbal,P,Language Evaluation
+View all SHL ProductsGet the ultimate view of potential with SHL’s unmatched portfolio of assessments and interview technology.,https://www.shl.com/products/,General,P,View all SHL ProductsGet the ultimate view of potential with SHL’s unmatched portfolio of assessments and interview technology.
+Services,https://www.shl.com/solutions/services/,General,P,Services
+Managed Services,https://www.shl.com/solutions/services/managed-services/,General,P,Managed Services
+Training Services,https://www.shl.com/solutions/services/training-services/,General,P,Training Services
+SHL Certification (OPQ/Verify),https://www.shl.com/solutions/services/training-services/personality-and-ability-assessment-training/,General,P,SHL Certification (OPQ/Verify)
+Training Calendar,https://www.shl.com/solutions/services/training-calendar/,General,P,Training Calendar
+Outsourced Assessments (VADC),https://www.shl.com/products/assessments/assessment-and-development-centers/,General,P,Outsourced Assessments (VADC)
+View Product Catalog,https://www.shl.com/products/product-catalog/,General,P,View Product Catalog
+HR Priorities,https://www.shl.com/hr-priorities/,General,P,HR Priorities
+HR PrioritiesExplore the latest HR priorities and insights on workforce trends.,https://www.shl.com/hr-priorities/,General,K,HR PrioritiesExplore the latest HR priorities and insights on workforce trends.
+Skills-Based Organizations,https://www.shl.com/hr-priorities/skills-based-organizations/,General,K,Skills-Based Organizations
+Skills-Based Hiring,https://www.shl.com/hr-priorities/skills-based-organizations/skills-based-hiring/,General,K,Skills-Based Hiring
+Skills-Based Talent Management,https://www.shl.com/hr-priorities/skills-based-organizations/skills-based-talent-management/,Leadership,K,Skills-Based Talent Management
+Decisions with People Data,https://www.shl.com/hr-priorities/decisions-with-people-data/,General,K,Decisions with People Data
+Manager and Leader Development,https://www.shl.com/hr-priorities/manager-leadership-development/,General,P,Manager and Leader Development
+Watch Now,https://www.shl.com/resources/by-type/webinars/ai-and-the-future-of-work-how-hr-leads-the-skills-transformation/,General,P,Watch Now
+Resources,https://www.shl.com/resources/,General,P,Resources
+View all SHL Resources,https://www.shl.com/resources/,General,P,View all SHL Resources
+Blogs,https://www.shl.com/resources/by-type/blog/,General,P,Blogs
+"eBooks, Guides, and Tools",https://www.shl.com/resources/by-type/guides-and-ebooks/,General,P,"eBooks, Guides, and Tools"
+Research & Reports,https://www.shl.com/resources/by-type/whitepapers-and-reports/,General,P,Research & Reports
+Webinars,https://www.shl.com/resources/by-type/webinars/,General,P,Webinars
+Demos On-Demand,https://www.shl.com/resources/by-type/demos/,General,P,Demos On-Demand
+Customer Stories,https://www.shl.com/resources/by-type/customer-stories/,General,P,Customer Stories
+View all Resources,https://www.shl.com/resources/,General,P,View all Resources
+SHL LabsAdvancing Talent with Innovation and Insights,https://www.shl.com/resources/shl-labs/,General,P,SHL LabsAdvancing Talent with Innovation and Insights
+Candidate Experience,https://www.shl.com/resources/shl-labs/candidate-experience/,General,P,Candidate Experience
+People Insights,https://www.shl.com/resources/shl-labs/people-insights/,General,P,People Insights
+"Diversity, Inclusion, and Accessibility",https://www.shl.com/resources/shl-labs/diversity-equity-inclusion-belonging-and-accessibility/,General,P,"Diversity, Inclusion, and Accessibility"
+Our Science,https://www.shl.com/resources/shl-labs/our-science/,General,P,Our Science
+Research Publications,https://www.shl.com/resources/shl-labs/research-publications/,General,P,Research Publications
+Read Report,https://www.shl.com/resources/by-type/whitepapers-and-reports/hr-skills-insights-creating-a-future-ready-hr-team-built-for-success/,General,P,Read Report
+About,https://www.shl.com/about/,General,P,About
+Learn More,https://www.shl.com/about/,General,P,Learn More
+Company,https://www.shl.com/about/company/,General,P,Company
+Leadership Team,https://www.shl.com/about/company/leadership-team/,Leadership,P,Leadership Team
+News & Events,https://www.shl.com/about/news-and-events/,General,P,News & Events
+Press Releases,https://www.shl.com/about/news-and-events/press-releases/,General,P,Press Releases
+In the News,https://www.shl.com/about/news-and-events/in-the-news/,General,P,In the News
+Awards & Accolades,https://www.shl.com/about/news-and-events/awards-and-accolades/,General,P,Awards & Accolades
+Events & Conferences,https://www.shl.com/about/news-and-events/events/,General,P,Events & Conferences
+Partners,https://www.shl.com/about/partners/,General,P,Partners
+Research Partners,https://www.shl.com/about/partners/research-partners/,General,P,Research Partners
+Skills Partner Program,https://www.shl.com/about/partners/skills-partner-program/,General,K,Skills Partner Program
+Resellers,https://www.shl.com/about/partners/resellers/,General,P,Resellers
+Sales Inquiries,https://www.shl.com/about/company/contact/book-a-demo/,General,P,Sales Inquiries
+Media Inquiries,https://www.shl.com/about/company/contact/#media-inquiries,General,P,Media Inquiries
+Book a Demo,https://www.shl.com/about/company/contact/book-a-demo/,General,P,Book a Demo
+Home,https://www.shl.com/,General,P,Home
+Administrative Professional - Short Form,https://www.shl.com/products/product-catalog/view/administrative-professional-short-form/,General,P,Administrative Professional - Short Form
+Apprentice + 8.0 Job Focused Assessment,https://www.shl.com/products/product-catalog/view/apprentice-8-0-job-focused-assessment-4261/,General,P,Apprentice + 8.0 Job Focused Assessment
+Apprentice 8.0 Job Focused Assessment,https://www.shl.com/products/product-catalog/view/apprentice-8-0-job-focused-assessment/,General,P,Apprentice 8.0 Job Focused Assessment
+Bank Administrative Assistant - Short Form,https://www.shl.com/products/product-catalog/view/bank-administrative-assistant-short-form/,General,P,Bank Administrative Assistant - Short Form
+Bank Collections Agent - Short Form,https://www.shl.com/products/product-catalog/view/bank-collections-agent-short-form/,General,P,Bank Collections Agent - Short Form
+Bank Operations Supervisor - Short Form,https://www.shl.com/products/product-catalog/view/bank-operations-supervisor-short-form/,Leadership,P,Bank Operations Supervisor - Short Form
+"Bookkeeping, Accounting, Auditing Clerk Short Form",https://www.shl.com/products/product-catalog/view/bookkeeping-accounting-auditing-clerk-short-form/,General,P,"Bookkeeping, Accounting, Auditing Clerk Short Form"
+Branch Manager - Short Form,https://www.shl.com/products/product-catalog/view/branch-manager-short-form/,General,P,Branch Manager - Short Form
+Next,https://www.shl.com/products/product-catalog/?start=12&type=2,General,P,Next
+Global Skills Development Report,https://www.shl.com/products/product-catalog/view/global-skills-development-report/,General,K,Global Skills Development Report
+.NET Framework 4.5,https://www.shl.com/products/product-catalog/view/net-framework-4-5/,General,P,.NET Framework 4.5
+.NET MVC (New),https://www.shl.com/products/product-catalog/view/net-mvc-new/,General,P,.NET MVC (New)
+.NET MVVM (New),https://www.shl.com/products/product-catalog/view/net-mvvm-new/,General,P,.NET MVVM (New)
+.NET WCF (New),https://www.shl.com/products/product-catalog/view/net-wcf-new/,General,P,.NET WCF (New)
+.NET WPF (New),https://www.shl.com/products/product-catalog/view/net-wpf-new/,General,P,.NET WPF (New)
+.NET XAML (New),https://www.shl.com/products/product-catalog/view/net-xaml-new/,General,P,.NET XAML (New)
+Accounts Payable (New),https://www.shl.com/products/product-catalog/view/accounts-payable-new/,General,P,Accounts Payable (New)
+Accounts Payable Simulation (New),https://www.shl.com/products/product-catalog/view/accounts-payable-simulation-new/,General,P,Accounts Payable Simulation (New)
+Accounts Receivable (New),https://www.shl.com/products/product-catalog/view/accounts-receivable-new/,General,P,Accounts Receivable (New)
+Accounts Receivable Simulation (New),https://www.shl.com/products/product-catalog/view/accounts-receivable-simulation-new/,General,P,Accounts Receivable Simulation (New)
+ADO.NET (New),https://www.shl.com/products/product-catalog/view/ado-net-new/,General,P,ADO.NET (New)
+About SHL,https://www.shl.com/about/,General,P,About SHL
+Case Studies,https://www.shl.com/resources/by-type/customer-stories/,General,P,Case Studies
+SHL Careers,https://www.shl.com/careers/,General,P,SHL Careers
+Subscribe,https://www.shl.com/about/company/contact/subscribe/,General,P,Subscribe
+Platform Login,https://www.shl.com/login/,General,P,Platform Login
+Client Support↗,https://support.shl.com/categories.html?hl=en&c=10_91_13_,General,P,Client Support↗
+Product Catalog,https://www.shl.com/products/product-catalog/,General,P,Product Catalog
+Candidate Support↗,https://support.shl.com/categories.html?hl=en&c=10_91_12_,General,P,Candidate Support↗
+Raise an Issue↗,https://support.shl.com/contactUs.html?hl=en&c=10_91_12_,General,P,Raise an Issue↗
+Neurodiversity Hub,https://www.shl.com/shldirect/en/neurodiversity-information-hub-for-candidates/,General,P,Neurodiversity Hub
+AMCAT↗,https://www.myamcat.com,General,P,AMCAT↗
+Cookie Policy,https://www.shl.com/legal/privacy/cookie-policy/,General,P,Cookie Policy
+Privacy Notice,https://www.shl.com/legal/privacy/,General,P,Privacy Notice
+Security & Compliance,https://www.shl.com/legal/security-and-compliance/,General,P,Security & Compliance
+Legal Resources,https://www.shl.com/legal/,General,P,Legal Resources
+UK Modern Slavery,https://www.shl.com/legal/shl-modern-slavery-act/,General,P,UK Modern Slavery
+Site Map,https://www.shl.com/company/site-map/,General,P,Site Map
+Site Search,https://www.shl.com/search/,General,P,Site Search
+Search by keyword...,https://www.shl.com/products/product-catalog/view/account-manager-solution/,General,P,Search by keyword...
