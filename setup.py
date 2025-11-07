@@ -87,55 +87,93 @@ def step1_generate_catalog():
             
             logger.info(f"✓ Excel columns found: {list(df.columns)}")
             
-            # Handle column name variations
-            column_mapping = {
-                'assessment_name': 'Assessment Name',
-                'Assessment_Name': 'Assessment Name',
-                'assessment name': 'Assessment Name',
-                'assessment_url': 'Assessment URL',
-                'Assessment_URL': 'Assessment URL',
-                'assessment url': 'Assessment URL',
-                'description': 'Description',
-                'Description': 'Description',
-                'category': 'Category',
-                'Category': 'Category',
-                'test_type': 'Test Type',
-                'Test_Type': 'Test Type',
-                'test type': 'Test Type',
-                'Type': 'Test Type',
-                'type': 'Test Type'
-            }
+            # COMPREHENSIVE column mapping - handles ALL variations
+            column_mapping = {}
             
-            # Rename columns to standard format
-            for old_col, new_col in column_mapping.items():
-                if old_col in df.columns and new_col not in df.columns:
-                    df.rename(columns={old_col: new_col}, inplace=True)
-                    logger.info(f"✓ Renamed column: {old_col} → {new_col}")
+            # Find Assessment Name column
+            for col in df.columns:
+                col_lower = col.lower().replace(' ', '_').replace('-', '_')
+                
+                if 'assessment' in col_lower and 'name' in col_lower:
+                    column_mapping[col] = 'Assessment Name'
+                elif col_lower in ['assessment_name', 'name', 'assessment']:
+                    column_mapping[col] = 'Assessment Name'
+                    
+                elif 'assessment' in col_lower and 'url' in col_lower:
+                    column_mapping[col] = 'Assessment URL'
+                elif col_lower in ['assessment_url', 'url', 'link']:
+                    column_mapping[col] = 'Assessment URL'
+                    
+                elif 'description' in col_lower:
+                    column_mapping[col] = 'Description'
+                elif col_lower in ['desc', 'description', 'details']:
+                    column_mapping[col] = 'Description'
+                    
+                elif 'category' in col_lower:
+                    column_mapping[col] = 'Category'
+                elif col_lower in ['category', 'cat', 'type', 'group']:
+                    column_mapping[col] = 'Category'
+                    
+                elif 'test' in col_lower and 'type' in col_lower:
+                    column_mapping[col] = 'Test Type'
+                elif col_lower in ['test_type', 'testtype', 'assessment_type']:
+                    column_mapping[col] = 'Test Type'
             
-            # Verify required columns exist
+            # Apply mapping
+            if column_mapping:
+                df.rename(columns=column_mapping, inplace=True)
+                logger.info(f"✓ Mapped columns: {column_mapping}")
+            
+            # Check what we have now
             required_cols = ['Assessment Name', 'Assessment URL', 'Description', 'Category', 'Test Type']
+            available_cols = [col for col in required_cols if col in df.columns]
             missing_cols = [col for col in required_cols if col not in df.columns]
             
+            logger.info(f"✓ Available columns: {available_cols}")
+            
             if missing_cols:
-                logger.error(f"Excel file missing columns: {missing_cols}")
-                logger.error(f"Available columns: {list(df.columns)}")
-                logger.info("Attempting to use first 5 columns as fallback...")
+                logger.error(f"ERROR - Missing columns: {missing_cols}")
+                logger.error(f"ERROR - Available columns: {list(df.columns)}")
+                logger.info("INFO - Attempting to use first 5 columns as fallback...")
                 
-                # Fallback: Use first 5 columns
+                # FALLBACK: Use first 5 columns by position
                 if len(df.columns) >= 5:
-                    df.columns = required_cols[:len(df.columns)]
-                    logger.info("✓ Using columns by position")
+                    old_cols = list(df.columns)[:5]
+                    df = df.iloc[:, :5]
+                    df.columns = required_cols
+                    logger.info(f"✓ Mapped by position: {old_cols} -> {required_cols}")
+                elif len(df.columns) >= 3:
+                    # At minimum need: Name, URL, Description
+                    old_cols = list(df.columns)[:3]
+                    df = df.iloc[:, :3]
+                    df.columns = ['Assessment Name', 'Assessment URL', 'Description']
+                    df['Category'] = 'General'
+                    df['Test Type'] = 'K'
+                    logger.info(f"✓ Used first 3 columns with defaults")
                 else:
+                    logger.error("ERROR - Not enough columns in Excel file")
                     return False
+            
+            # Verify we have data
+            if len(df) == 0:
+                logger.error("ERROR - Excel file is empty")
+                return False
+            
+            # Clean data
+            df = df.fillna('')
             
             # Save to CSV
             os.makedirs('data', exist_ok=True)
             df.to_csv(csv_path, index=False)
             logger.info(f"✓ Saved {len(df)} assessments to {csv_path}")
+            
+            # Log sample
+            logger.info(f"✓ Sample row: {df.iloc[0].to_dict()}")
+            
             return True
         
         # Priority 3: Scrape from web (last resort)
-        logger.info("✓ No local data found, scraping SHL website...")
+        logger.warning("⚠ No local data found, scraping SHL website...")
         from src.crawler import SHLCrawler
         
         crawler = SHLCrawler()
