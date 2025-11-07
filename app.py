@@ -1,32 +1,54 @@
-"""
-Streamlit Web Interface for SHL Assessment Recommender
-
-This module provides a professional web interface for the recommendation system.
-"""
-
 import streamlit as st
+import os
+import sys
+import subprocess
+
 # ========================================
 # MOUNT FASTAPI FOR API ENDPOINTS
 # ========================================
-from streamlit.web import cli as stcli
-import sys
-
-# Check if we should serve API alongside Streamlit
 if os.path.exists('api_routes.py'):
     try:
         from api_routes import api_app
-        
-        # This allows API access via /api/* routes
-        # While Streamlit UI remains at /
-        import streamlit.components.v1 as components
-        
-        # Log API availability
         print("✅ FastAPI mounted at /api/*")
         print("📚 API Docs: /api/docs")
         print("🔧 API Endpoints: /api/recommend, /api/health, /api/catalog")
-        
     except Exception as e:
         print(f"⚠️ Could not mount API: {e}")
+
+# ========================================
+# AUTO-SETUP: Run setup.py on first load
+# ========================================
+if not os.path.exists('models/faiss_index.faiss'):
+    with st.spinner("🚀 First-time setup: Building search index... This takes ~2-3 minutes"):
+        try:
+            result = subprocess.run([sys.executable, 'setup.py'], 
+                                  capture_output=True, 
+                                  text=True, 
+                                  timeout=300)
+            
+            if result.returncode == 0:
+                st.success("✅ Setup complete! Reloading app...")
+                st.rerun()
+            else:
+                st.error(f"Setup failed: {result.stderr}")
+        except Exception as e:
+            st.error(f"Setup error: {str(e)}")
+            st.stop()
+
+# Page configuration - MUST be after imports but before other st commands
+st.set_page_config(
+    page_title="SHL Assessment Recommender | People Science",
+    page_icon="🎯",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# NOW import other libraries
+import pandas as pd
+import json
+from datetime import datetime
+import warnings
+warnings.filterwarnings('ignore')
 
 import pandas as pd
 import requests
@@ -41,13 +63,6 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from src.recommender import AssessmentRecommender
 from src.reranker import AssessmentReranker
 
-# Page configuration
-st.set_page_config(
-    page_title="SHL Assessment Recommender",
-    page_icon="🎯",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
 
 # Custom CSS for better styling
 st.markdown("""
