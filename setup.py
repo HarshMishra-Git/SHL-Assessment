@@ -80,98 +80,68 @@ def step1_generate_catalog():
             logger.info(f"✓ Loaded {len(df)} assessments from CSV")
             return True
         
-        # Priority 2: Generate from Excel
+        # Priority 2: Try to generate from Excel, and if anything fails, fall back to scraping
         if os.path.exists(excel_path):
             logger.info(f"✓ Generating catalog from Excel: {excel_path}")
-            df = pd.read_excel(excel_path)
-            
-            logger.info(f"✓ Excel columns found: {list(df.columns)}")
-            
-            # COMPREHENSIVE column mapping - handles ALL variations
-            column_mapping = {}
-            
-            # Find Assessment Name column
-            for col in df.columns:
-                col_lower = col.lower().replace(' ', '_').replace('-', '_')
+            try:
+                df = pd.read_excel(excel_path)
+                logger.info(f"✓ Excel columns found: {list(df.columns)}")
                 
-                if 'assessment' in col_lower and 'name' in col_lower:
-                    column_mapping[col] = 'Assessment Name'
-                elif col_lower in ['assessment_name', 'name', 'assessment']:
-                    column_mapping[col] = 'Assessment Name'
-                    
-                elif 'assessment' in col_lower and 'url' in col_lower:
-                    column_mapping[col] = 'Assessment URL'
-                elif col_lower in ['assessment_url', 'url', 'link']:
-                    column_mapping[col] = 'Assessment URL'
-                    
-                elif 'description' in col_lower:
-                    column_mapping[col] = 'Description'
-                elif col_lower in ['desc', 'description', 'details']:
-                    column_mapping[col] = 'Description'
-                    
-                elif 'category' in col_lower:
-                    column_mapping[col] = 'Category'
-                elif col_lower in ['category', 'cat', 'type', 'group']:
-                    column_mapping[col] = 'Category'
-                    
-                elif 'test' in col_lower and 'type' in col_lower:
-                    column_mapping[col] = 'Test Type'
-                elif col_lower in ['test_type', 'testtype', 'assessment_type']:
-                    column_mapping[col] = 'Test Type'
-            
-            # Apply mapping
-            if column_mapping:
-                df.rename(columns=column_mapping, inplace=True)
-                logger.info(f"✓ Mapped columns: {column_mapping}")
-            
-            # Check what we have now
-            required_cols = ['Assessment Name', 'Assessment URL', 'Description', 'Category', 'Test Type']
-            available_cols = [col for col in required_cols if col in df.columns]
-            missing_cols = [col for col in required_cols if col not in df.columns]
-            
-            logger.info(f"✓ Available columns: {available_cols}")
-            
-            if missing_cols:
-                logger.error(f"ERROR - Missing columns: {missing_cols}")
-                logger.error(f"ERROR - Available columns: {list(df.columns)}")
-                logger.info("INFO - Attempting to use first 5 columns as fallback...")
+                # COMPREHENSIVE column mapping - handles ALL variations
+                column_mapping = {}
+                for col in df.columns:
+                    col_lower = col.lower().replace(' ', '_').replace('-', '_')
+                    if 'assessment' in col_lower and 'name' in col_lower:
+                        column_mapping[col] = 'Assessment Name'
+                    elif col_lower in ['assessment_name', 'name', 'assessment']:
+                        column_mapping[col] = 'Assessment Name'
+                    elif 'assessment' in col_lower and 'url' in col_lower:
+                        column_mapping[col] = 'Assessment URL'
+                    elif col_lower in ['assessment_url', 'url', 'link']:
+                        column_mapping[col] = 'Assessment URL'
+                    elif 'description' in col_lower or col_lower in ['desc', 'details']:
+                        column_mapping[col] = 'Description'
+                    elif 'category' in col_lower or col_lower in ['cat', 'type', 'group']:
+                        column_mapping[col] = 'Category'
+                    elif 'test' in col_lower and 'type' in col_lower or col_lower in ['test_type', 'testtype', 'assessment_type']:
+                        column_mapping[col] = 'Test Type'
+                if column_mapping:
+                    df.rename(columns=column_mapping, inplace=True)
+                    logger.info(f"✓ Mapped columns: {column_mapping}")
                 
-                # FALLBACK: Use first 5 columns by position
-                if len(df.columns) >= 5:
-                    old_cols = list(df.columns)[:5]
-                    df = df.iloc[:, :5]
-                    df.columns = required_cols
-                    logger.info(f"✓ Mapped by position: {old_cols} -> {required_cols}")
-                elif len(df.columns) >= 3:
-                    # At minimum need: Name, URL, Description
-                    old_cols = list(df.columns)[:3]
-                    df = df.iloc[:, :3]
-                    df.columns = ['Assessment Name', 'Assessment URL', 'Description']
-                    df['Category'] = 'General'
-                    df['Test Type'] = 'K'
-                    logger.info(f"✓ Used first 3 columns with defaults")
-                else:
-                    logger.error("ERROR - Not enough columns in Excel file, falling back to web scrape")
-                    # Fall through to scrape step below
-                    raise FileNotFoundError("Insufficient Excel columns; use scrape fallback")
-            
-            # Verify we have data
-            if len(df) == 0:
-                logger.error("ERROR - Excel file is empty, falling back to web scrape")
-                raise FileNotFoundError("Empty Excel file; use scrape fallback")
-            
-            # Clean data
-            df = df.fillna('')
-            
-            # Save to CSV
-            os.makedirs('data', exist_ok=True)
-            df.to_csv(csv_path, index=False)
-            logger.info(f"✓ Saved {len(df)} assessments to {csv_path}")
-            
-            # Log sample
-            logger.info(f"✓ Sample row: {df.iloc[0].to_dict()}")
-            
-            return True
+                required_cols = ['Assessment Name', 'Assessment URL', 'Description', 'Category', 'Test Type']
+                available_cols = [col for col in required_cols if col in df.columns]
+                missing_cols = [col for col in required_cols if col not in df.columns]
+                logger.info(f"✓ Available columns: {available_cols}")
+                
+                if missing_cols:
+                    logger.warning(f"⚠ Excel missing columns: {missing_cols} — trying positional fallback")
+                    if len(df.columns) >= 5:
+                        old_cols = list(df.columns)[:5]
+                        df = df.iloc[:, :5]
+                        df.columns = required_cols
+                        logger.info(f"✓ Mapped by position: {old_cols} -> {required_cols}")
+                    elif len(df.columns) >= 3:
+                        old_cols = list(df.columns)[:3]
+                        df = df.iloc[:, :3]
+                        df.columns = ['Assessment Name', 'Assessment URL', 'Description']
+                        df['Category'] = 'General'
+                        df['Test Type'] = 'K'
+                        logger.info("✓ Used first 3 columns with defaults")
+                    else:
+                        raise ValueError("Insufficient Excel columns after mapping")
+                
+                if len(df) == 0:
+                    raise ValueError("Excel file is empty")
+                
+                df = df.fillna('')
+                os.makedirs('data', exist_ok=True)
+                df.to_csv(csv_path, index=False)
+                logger.info(f"✓ Saved {len(df)} assessments to {csv_path}")
+                logger.info(f"✓ Sample row: {df.iloc[0].to_dict()}")
+                return True
+            except Exception as e:
+                logger.warning(f"Excel load/mapping failed ({e}); falling back to web scrape...")
         
         # Priority 3: Scrape from web (last resort)
         logger.warning("⚠ No local data found or Excel unusable, scraping SHL website...")
