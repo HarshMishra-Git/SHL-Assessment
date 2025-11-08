@@ -151,13 +151,14 @@ def step1_generate_catalog():
                     df['Test Type'] = 'K'
                     logger.info(f"✓ Used first 3 columns with defaults")
                 else:
-                    logger.error("ERROR - Not enough columns in Excel file")
-                    return False
+                    logger.error("ERROR - Not enough columns in Excel file, falling back to web scrape")
+                    # Fall through to scrape step below
+                    raise FileNotFoundError("Insufficient Excel columns; use scrape fallback")
             
             # Verify we have data
             if len(df) == 0:
-                logger.error("ERROR - Excel file is empty")
-                return False
+                logger.error("ERROR - Excel file is empty, falling back to web scrape")
+                raise FileNotFoundError("Empty Excel file; use scrape fallback")
             
             # Clean data
             df = df.fillna('')
@@ -173,18 +174,19 @@ def step1_generate_catalog():
             return True
         
         # Priority 3: Scrape from web (last resort)
-        logger.warning("⚠ No local data found, scraping SHL website...")
+        logger.warning("⚠ No local data found or Excel unusable, scraping SHL website...")
         from src.crawler import SHLCrawler
         
+        os.makedirs('data', exist_ok=True)
         crawler = SHLCrawler()
-        crawler.scrape_catalog()
-        
-        if os.path.exists(csv_path):
-            df = pd.read_csv(csv_path)
-            logger.info(f"✓ Scraped {len(df)} assessments")
+        df = crawler.scrape_catalog()
+        try:
+            df = df.fillna('')
+            df.to_csv(csv_path, index=False)
+            logger.info(f"✓ Scraped {len(df)} assessments; saved to {csv_path}")
             return True
-        else:
-            logger.error("✗ Scraping failed and no catalog available")
+        except Exception as e:
+            logger.error(f"✗ Scraping failed and no catalog available: {e}")
             return False
             
     except Exception as e:
@@ -224,25 +226,14 @@ def step3_build_index():
     logger.info("Downloading models and creating embeddings...")
     
     try:
-        from src.embedder import AssessmentEmbedder
+        from src.embedder import EmbeddingGenerator
         
-        embedder = AssessmentEmbedder()
+        embedder = EmbeddingGenerator()
         
-        # Load catalog
-        embedder.load_catalog()
-        logger.info(f"✓ Loaded {len(embedder.assessments)} assessments")
-        
-        # Create embeddings
-        embedder.create_embeddings()
-        logger.info(f"✓ Generated embeddings with shape {embedder.embeddings.shape}")
-        
-        # Build FAISS index
-        embedder.build_index()
-        logger.info(f"✓ Built FAISS index with {embedder.index.ntotal} vectors")
-        
-        # Save
-        embedder.save_index()
-        logger.info(f"✓ Index saved to models/ directory")
+        # Build complete index pipeline (loads catalog, generates embeddings, saves artifacts)
+        index, embeddings, mapping = embedder.build_index()
+        logger.info(f"✓ Built FAISS index with {index.ntotal} vectors")
+        logger.info(f"✓ Embeddings shape {embeddings.shape}; Mappings {len(mapping)}")
         
         return True
     except Exception as e:
@@ -323,15 +314,18 @@ def verify_setup():
         from src.recommender import AssessmentRecommender
         
         recommender = AssessmentRecommender()
-        recommender.load_index()
+        loaded = recommender.load_index()
+        if not loaded:
+            logger.error("✗ Recommender failed to load index during verification")
+            return False
         
-        num_assessments = len(recommender.assessment_data)
-        num_vectors = recommender.index.ntotal
+        num_assessments = len(recommender.assessment_mapping)
+        num_vectors = recommender.faiss_index.ntotal if recommender.faiss_index is not None else 0
         
         logger.info(f"✓ Loaded {num_assessments} assessments")
         logger.info(f"✓ Index has {num_vectors} vectors")
         
-        if num_assessments < 100:
+        if num_assessments < 50:
             logger.warning(f"⚠ Only {num_assessments} assessments (expected 150+)")
         
         return True

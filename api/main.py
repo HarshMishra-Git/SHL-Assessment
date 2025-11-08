@@ -292,23 +292,23 @@ async def startup_event():
             # Create directories
             os.makedirs('data', exist_ok=True)
             os.makedirs('models', exist_ok=True)
-            os.makedirs('Data', exist_ok=True)
             
-            # Run setup
+            # Build catalog
             from src.crawler import SHLCrawler
-            from src.embedder import AssessmentEmbedder
-            
-            logger.info("📊 Scraping SHL catalog...")
             crawler = SHLCrawler()
-            crawler.scrape_catalog()
+            df = crawler.scrape_catalog()
+            try:
+                df = df.fillna('')
+                df.to_csv('data/shl_catalog.csv', index=False)
+                logger.info("📊 Catalog saved to data/shl_catalog.csv")
+            except Exception as e:
+                logger.warning(f"Catalog save failed: {e}")
             
-            logger.info("🔮 Building search index...")
-            embedder = AssessmentEmbedder()
-            embedder.load_catalog()
-            embedder.create_embeddings()
+            # Build index using correct embedder
+            from src.embedder import EmbeddingGenerator
+            logger.info("🔮 Building search index with EmbeddingGenerator...")
+            embedder = EmbeddingGenerator()
             embedder.build_index()
-            embedder.save_index()
-            
             logger.info("✅ Setup complete!")
         
         # Load recommender
@@ -349,9 +349,9 @@ async def health():
     """Health check endpoint"""
     return {
         "status": "healthy" if recommender and reranker else "initializing",
-        "index_loaded": recommender is not None and recommender.index is not None,
-        "catalog_size": len(recommender.assessment_data) if recommender and recommender.assessment_data else 0,
-        "reranker_loaded": reranker is not None
+        "index_loaded": bool(recommender and getattr(recommender, 'faiss_index', None)),
+        "catalog_size": len(getattr(recommender, 'assessment_mapping', {}) or {}),
+        "reranker_loaded": bool(reranker)
     }
 
 @app.post("/recommend", response_model=RecommendResponse)
@@ -402,12 +402,15 @@ async def get_catalog():
         raise HTTPException(status_code=503, detail="Service initializing")
     
     try:
+        # Convert mapping dict to list for API response
+        mapping = getattr(recommender, 'assessment_mapping', {})
+        assessments = list(mapping.values())
         return {
-            "assessments": recommender.assessment_data,
-            "count": len(recommender.assessment_data),
+            "assessments": assessments,
+            "count": len(assessments),
             "types": {
-                "K": sum(1 for a in recommender.assessment_data if a.get('test_type') == 'K'),
-                "P": sum(1 for a in recommender.assessment_data if a.get('test_type') == 'P')
+                "K": sum(1 for a in assessments if a.get('test_type') == 'K'),
+                "P": sum(1 for a in assessments if a.get('test_type') == 'P')
             }
         }
     except Exception as e:
