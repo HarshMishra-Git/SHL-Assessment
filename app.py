@@ -26,18 +26,26 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 # AUTO-SETUP: Run setup.py on first load
 # ========================================
 if not os.path.exists('models/faiss_index.faiss'):
-    with st.spinner("🚀 First-time setup: Building search index... This takes ~2-3 minutes"):
+    with st.spinner("🚀 First-time setup: Building search index... This takes a few minutes"):
         try:
-            result = subprocess.run([sys.executable, 'setup.py'], 
-                                  capture_output=True, 
-                                  text=True, 
-                                  timeout=300)
+            # Prefer fast setup (skip evaluation) to meet Spaces startup limits
+            result = subprocess.run(
+                [sys.executable, 'setup.py', '--fast'],
+                capture_output=True,
+                text=True,
+                timeout=600
+            )
             
             if result.returncode == 0:
                 st.success("✅ Setup complete! Reloading app...")
                 st.rerun()
             else:
-                st.error(f"Setup failed: {result.stderr}")
+                # Show condensed logs to help debugging in Spaces
+                stderr = result.stderr[-2000:] if result.stderr else "No error output"
+                st.error(f"Setup failed. Details (tail):\n{stderr}")
+        except subprocess.TimeoutExpired:
+            st.error("Setup timed out during model download/build. Please click Rerun; downloads are cached and will resume.")
+            st.stop()
         except Exception as e:
             st.error(f"Setup error: {str(e)}")
             st.stop()
